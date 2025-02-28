@@ -2,7 +2,8 @@ import { Telegraf } from 'telegraf';
 import { Bill } from './models/Bill';
 import mongoose from 'mongoose';
 import { scheduleJob } from 'node-schedule';
-import 'dotenv/config'; // Thêm dòng này ở đầu file
+import 'dotenv/config';
+import { json } from 'body-parser';
 // Thêm type assertion và kiểm tra env variables
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -78,10 +79,28 @@ scheduleJob('0 18 * * 5', async () => { // 6pm Friday
     // Gửi thông báo cho người dùng
 });
 
+const jsonParser = json();
+
 // Webhook config cho Vercel
 module.exports = async (req: any, res: any) => {
-    await bot.handleUpdate(req.body);
-    res.status(200).send('OK');
+    try {
+        await new Promise((resolve, reject) =>
+            jsonParser(req, res, (err) => err ? reject(err) : resolve(null))
+        );
+        // Verify request đến từ Telegram
+        if (!req.body || typeof req.body !== 'object') {
+            throw new Error('Invalid request body');
+        }
+
+        // Debug log
+        console.log('Received update:', JSON.stringify(req.body, null, 2));
+
+        await bot.handleUpdate(req.body);
+        res.status(200).send('OK');
+    } catch (error) {
+        console.error('Error handling update:', error);
+        res.status(500).send('Internal Server Error');
+    }
 };
 
 // Local development
