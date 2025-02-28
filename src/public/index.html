@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice Mini App</title>
+</head>
+<body>
+  <h1>Quản lý Hóa đơn</h1>
+  <form id="invoiceForm">
+    <label>
+      Số tiền: <input type="number" name="amount" required>
+    </label>
+    <br/>
+    <label>
+      Người chi: <input type="text" name="payer" required>
+    </label>
+    <br/>
+    <label>
+      Người nợ: <input type="text" name="debtor" required>
+    </label>
+    <br/>
+    <label>
+      Mua gì: <input type="text" name="description" required>
+    </label>
+    <br/>
+    <label>
+      Đã trả: <input type="checkbox" name="isPaid">
+    </label>
+    <br/>
+    <button type="submit">Lưu hóa đơn</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('invoiceForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+      // Chuyển checkbox thành boolean
+      data.isPaid = form.elements['isPaid'].checked;
+      try {
+        const response = await fetch('/webapp/invoices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          alert('Hóa đơn đã được lưu thành công!');
+          form.reset();
+        } else {
+          alert('Có lỗi xảy ra khi lưu hóa đơn.');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Có lỗi xảy ra.');
+      }
+    });
+  </script>
+</body>
+</html>
