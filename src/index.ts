@@ -2,7 +2,7 @@ import { Telegraf } from 'telegraf';
 import { Bill } from './models/Bill';
 import mongoose from 'mongoose';
 import { scheduleJob } from 'node-schedule';
-
+import 'dotenv/config'; // Thêm dòng này ở đầu file
 // Thêm type assertion và kiểm tra env variables
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const MONGODB_URI = process.env.MONGODB_URI;
